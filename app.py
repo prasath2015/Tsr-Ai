@@ -1,0 +1,94 @@
+import os
+import json
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+import google.generativeai as genai
+
+app = Flask(__name__, static_folder='.')
+CORS(app)
+
+# Gemini API Configuration
+API_KEY = os.environ.get("API_KEY")
+if not API_KEY:
+    raise ValueError("API_KEY environment variable is required")
+genai.configure(api_key=API_KEY)
+
+# Tool Definitions
+def open_youtube(query: str):
+    """Opens YouTube and searches for a specific song or video."""
+    return {"status": "requesting_youtube_search", "query": query}
+
+def search_web(query: str):
+    """Searches Google for real-time information."""
+    return {"status": "requesting_google_search", "query": query}
+
+def open_terminal():
+    """Opens the local system terminal environment."""
+    return {"status": "opening_terminal"}
+
+tools = [open_youtube, search_web, open_terminal]
+
+# Agent Model Initialization
+model = genai.GenerativeModel(
+    model_name='gemini-2.0-flash',  # ✅ Fixed model name
+    tools=tools,
+    system_instruction="""You are Aura, an elite AI Automation Agent.
+    Your objective is to execute tasks for the user within Aura OS.
+    - Use 'open_youtube' for music, videos, or tutorials.
+    - Use 'search_web' for facts, news, or general search.
+    - Use 'open_terminal' for coding or system tasks.
+    Be concise, professional, and efficient."""
+)
+
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:path>')
+def static_files(path):
+    return send_from_directory('.', path)
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    data = request.json
+    message = data.get('message')
+    history = data.get('history', [])
+    
+    try:
+        # ✅ Convert history to Gemini format
+        gemini_history = []
+        for item in history:
+            role = "user" if item.get("role") == "user" else "model"
+            gemini_history.append({
+                "role": role,
+                "parts": [{"text": item.get("content", "")}]
+            })
+        
+        # ✅ Pass history to chat session
+        chat_session = model.start_chat(
+            history=gemini_history,
+            enable_automatic_function_calling=True
+        )
+        response = chat_session.send_message(message)
+        
+        # Extract directives for frontend execution
+        directives = []
+        for part in response.candidates[0].content.parts:
+            if hasattr(part, 'function_call') and part.function_call:
+                fn = part.function_call
+                directives.append({
+                    "name": fn.name,
+                    "args": dict(fn.args)
+                })
+        
+        return jsonify({
+            "text": response.text,
+            "directives": directives
+        })
+    except Exception as e:
+        print(f"Agent Logic Error: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+  
