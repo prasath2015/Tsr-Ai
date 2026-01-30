@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura OS | AI Automation Agent</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <h1>Aura <span>OS</span></h1>
+                </div>
+                <button id="sidebar-close-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="sidebar-content">
+                <section>
+                    <h2 class="section-title">Flow Protocols</h2>
+                    <div id="recommendations-list" class="recommendations"></div>
+                </section>
+                <section>
+                    <button onclick="window.exportProject()" class="export-btn">
+                        <div>
+                            <span class="export-label">Project Files</span>
+                            <span class="export-desc">Download as .zip</span>
+                        </div>
+                        <span class="export-icon">↓</span>
+                    </button>
+                </section>
+                <section>
+                    <h2 class="section-title">System Logs</h2>
+                    <div id="history-list" class="history"></div>
+                </section>
+            </div>
+            <div class="sidebar-footer">
+                <div class="status-badge">
+                    <div>
+                        <span class="status-version">Node v4.5</span>
+                        <span class="status-link">SECURE_LINK_ON</span>
+                    </div>
+                    <div class="status-dot"></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <button id="sidebar-open-btn" class="menu-btn">☰</button>
+                <div>
+                    <h2>Automation Terminal</h2>
+                    <span class="header-status">Interface Active</span>
+                </div>
+            </header>
+
+            <div id="chat-container" class="chat-container">
+                <div id="hero" class="hero">
+                    <div class="hero-icon-wrapper">
+                        <div class="hero-glow"></div>
+                        <div class="hero-icon">⚡</div>
+                    </div>
+                    <div class="hero-text">
+                        <h3>Directive Ready.</h3>
+                        <p>Aura is your autonomous web agent. Play songs, search facts, or navigate sites with simple commands.</p>
+                    </div>
+                    <div class="hero-actions">
+                        <button onclick="window.issueDirective('Play Lofi Hip Hop on YouTube')">Quick Play</button>
+                        <button onclick="window.issueDirective('What are the latest AI news?')">Research Protocol</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <form id="command-form" class="command-form">
+                    <div class="input-wrapper">
+                        <span class="input-icon">🎤</span>
+                        <input id="command-input" type="text" placeholder="Send directive to Aura..." autocomplete="off">
+                        <button type="submit" class="submit-btn">→</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
